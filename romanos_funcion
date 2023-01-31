@@ -1,0 +1,142 @@
+def decimal_to_roman(numero):
+
+    if not isinstance(numero, int):
+        return "ERROR: No has introducido un número entero"
+
+    if numero < 1 or numero > 3999:
+        return "ERROR: debe ser un valor entre 1 y 3999 (incluidos)"
+
+    divisores = [1000, 100, 10, 1]
+    indices = []
+
+    for divisor in divisores:
+        indices.append(numero // divisor)
+        numero = numero % divisor
+
+    millares = ["", "M", "MM", "MMM"]
+    centenas = ["", "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"]
+    decenas = ["", "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"]
+    unidades = ["", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"]
+
+    resultado = millares[indices[0]] + \
+        centenas[indices[1]] + \
+        decenas[indices[2]] + \
+        unidades[indices[3]]
+
+    return resultado
+
+def roman_to_decimal(roman):
+    roman_map = {'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000}
+    result = 0
+    code_error=validar_romano(roman)
+    if(code_error==0):
+
+        for index, letra in enumerate(roman):
+            if (index+1) < len(roman) and roman_map[letra] < roman_map[roman[index+1]]:
+                result -= roman_map[letra]
+            else:
+                result += roman_map[letra]
+        return result
+    else:
+        if(code_error and 0b00000001):
+             raise TypeError(
+            "ERROR: Tiene que ingresar un número romano en formato cadena")
+        if(code_error and 0b00000010):
+            raise ValueError(
+                #f"ERROR: {list_roman[index]} no es un dígito romano válido (I, V, X, L, C, D, M)")
+                "ERROR: no es un dígito romano válido (I, V, X, L, C, D, M)")
+        if(code_error and 0b00000100):
+            raise ValueError(
+                            " No se puede repetir mas de una vez el simbolo V")
+        if(code_error and 0b00001000):
+            raise ValueError(
+                            " No se puede repetir mas de una vez el simbolo L")
+        if(code_error and 0b00010000):
+            raise ValueError(
+                            " No se puede repetir mas de una vez el simbolo D")
+        if(code_error and 0b00100000):
+            raise ValueError(
+                        #f"ERROR: {list_roman[index]} No se puede repetir mas de tres veces un simbolo consecutivamente")
+                        " No se puede repetir mas de tres veces un simbolo consecutivamente")
+        if(code_error and 0b01000000):
+            raise ValueError(
+                            " El numero romano ingresado no es valido")
+        if(code_error and 0b10000000):
+            raise ValueError(
+                            " No se puede realizar una resta en un orden de magnitud menor")
+        if(code_error and 0b100000000):
+            raise ValueError(
+                            " No se puede restar el simbolo V")
+        if(code_error and 0b1000000000):
+            raise ValueError(
+                            " No se puede restar el simbolo L")
+        if(code_error and 0b10000000000):
+            raise ValueError(
+                            " No se puede restar el simbolo D")
+
+        return result
+# Al detallar el codigo con los condicionales de codigo de error, se podria retornar todo el 
+# resumen de todas las combinaciones de errores que se puden presentar mas no el primer error en aparecer
+# cual seria la forma mas practica o recursiva de hacerlo? 
+    
+def validar_romano(roman):
+    roman_map = {'I': 1, 'V': 5, 'X': 10, 'L': 50, 'C': 100, 'D': 500, 'M': 1000}
+    code_error = 0
+    #list_roman=enumerate(roman)
+    list_roman=list(roman)
+
+    if not isinstance(roman, str):
+        code_error=code_error or 0b00000001
+            #"ERROR: Tiene que ingresar un número romano en formato cadena")
+    for index in range(len(list_roman)-1):
+ 
+        if list_roman[index] not in roman_map :
+            code_error=code_error or 0b00000010
+            # ERROR: {list_roman[index]} no es un dígito romano válido (I, V, X, L, C, D, M)")
+        if(len(roman)>1 and index<(len(list_roman)-2)):
+            if (list_roman[index]==list_roman[index+1]):
+                    if (list_roman[index]=='V'):
+                        code_error=code_error or 0b00000100
+                        # No se puede repetir mas de una vez el simbolo V
+                    elif (list_roman[index]=='L'):
+                        code_error=code_error or 0b00001000
+                        # No se puede repetir mas de una vez el simbolo L
+                    elif (list_roman[index]=='D'):
+                        code_error=code_error or 0b00010000
+                        # No se puede repetir mas de una vez el simbolo D
+        if(len(roman)>3 and index<(len(list_roman)-3)) :
+            if(list_roman[index]==list_roman[index+1] and list_roman[index]==list_roman[index+2]):
+                if(list_roman[index]==list_roman[index+3]):
+                    code_error=code_error or 0b00100000
+                    # f"ERROR: {list_roman[index]} No se puede repetir mas de tres veces un simbolo consecutivamente"
+        if(list_roman[index]<list_roman[index+1] and len(roman)>2) and index<(len(list_roman)-3):
+            if(roman_map.get(list_roman[index])<roman_map.get(list_roman[index+2])):
+                code_error=code_error or 0b01000000
+                #"El numero romano ingresado no es valido"
+        if(list_roman[index]>list_roman[index+1]) :
+            if (roman_map.get(list_roman[index+1])>(roman_map.get(list_roman[index])*10)):
+                code_error=code_error or 0b10000000
+                # " No se puede realizar una resta en un orden de magnitud menor"
+            if (list_roman[index]=='V'):
+                code_error=code_error or 0b100000000
+                # "No se puede restar el simbolo V"
+            if (list_roman[index]=='L'):
+                code_error=code_error or 0b1000000000
+                # "No se puede restar el simbolo L"
+            if (list_roman[index]=='D'):
+                code_error=code_error or 0b10000000000
+                # "No se puede restar el simbolo D"
+    return code_error
+print("El codigo de error es:{}",format(validar_romano("VX")))
+# Al probar el anterior print del codigo superior, el test resultante pasa sin error, aunque
+# el resultado es erroneo. Deberia dar el code error segun la linea 121 las lineas.
+# no se encuentra por que no funciona.
+
+#El codigo de la funcion validar romano pretende emular los code error en base a otros sistemas, 
+# como un router, un PLC, una consola etc, que se puede dar un dignastico preciso de las fallas,
+# sin embargo si existe una manera menos compleja de realizar lo anterior, me gustaria conocerla.
+
+
+
+
+
